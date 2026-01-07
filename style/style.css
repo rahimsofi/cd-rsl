@@ -1,0 +1,606 @@
+:root {
+  --line-color: #d4af37;
+  --grid-line-color: rgba(255, 215, 0, 0.15);
+  --event-bg: #1a1a1a;
+  --event-border: #d4af37;
+  --text-color: #fcf6ff;
+  --point-bg: #0e0e0e;
+  --timeline-padding: 50px;
+  --site-title: "RSLX";
+  --gold:#d4af37;
+  --blue:#00c9ff;
+  --text:#fcf6ff;
+  --bg:#0e0e0e;
+  --bg2:#1a1a1a;
+  --green:#00ff66;
+  --gray:#555;
+}
+
+@font-face {
+  font-family: 'American Captain';
+  src: url('/style/American Captain.otf') format('opentype');
+}
+
+body {
+  position: relative;
+  background: url('/style/img/TITAN BACKGROUND.webp') top center no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  overflow-x: hidden;
+  padding-top: 0px; /* Compense la hauteur de la barre */
+  z-index: -2;
+  padding-bottom: 100px; /* hauteur de la bannière (60px) + marge de sécurité */
+}
+
+/* Overlay sombre */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  z-index: -1;
+}
+
+#page-title {
+  font-family: 'American Captain', Impact, sans-serif;
+  letter-spacing: 2px;
+  font-size: 42px;
+  color: var(--text-color);
+  text-shadow: 0 0 12px rgba(212,175,55,0.25);
+}
+
+header {
+  display: inline-block;
+  text-align: center;
+  font-family: 'American Captain', sans-serif;
+  font-size: 48px;
+  letter-spacing: 2px;
+  margin: 10px 0;
+  background: linear-gradient(to bottom, #feeec1, #e09f40);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(1px 1px 1px rgba(255, 255, 255, 0.2))
+          drop-shadow(-1px -1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.header-wrapper {
+  text-align: center;
+}
+
+/* Timeline globale */
+.timeline-container {
+  overflow-x: hidden;
+  padding: 0 50px;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  width: max-content;
+  height: auto;
+}
+
+.date-column {
+  flex: none;
+  text-align: center;
+  position: relative;
+  padding: 0 2px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  overflow: hidden; /* nécessaire pour que le ::after ne déborde pas */
+}
+
+.date-column::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    #00ffdd00 0%,
+    rgba(0,201,255,0.15) 20%,
+    rgba(0,201,255,0.15) 80%,
+    rgba(0,201,255,0) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.date-column.date-selected::after {
+  opacity: 1;
+}
+
+.date-column .day,
+.date-column .date {
+  position: relative;
+  z-index: 1;
+}
+
+.date-column .day {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.date-column .date {
+  font-size: 13px;
+}
+
+/* Lignes de la timeline */
+.date-column .grid-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--grid-line-color);
+}
+
+.timeline-line {
+  position: absolute;
+  top: 55px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--line-color);
+}
+
+/* Événements */
+.event-block {
+  position: absolute;
+  background: var(--event-bg);
+  border: 2px solid var(--event-border);
+  padding: 4px;
+  min-width: 50px;
+  border-radius: 14px;
+  text-align: center;
+  box-sizing: border-box;
+
+  /* 🔹 Ajout pour transition fluide */
+  transition: background 0.5s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 0 0 rgba(0,201,255,0);
+}
+
+  .event-block.event-highlight {
+    background: linear-gradient(
+        90deg,
+        rgba(0,201,255,0.15) 0%,
+        rgba(0,201,255,0.05) 100%
+    );
+    box-shadow: 0 0 10px rgba(0,201,255,0.4);
+    border-color: #00c9ff; /* léger bleu néon pour rappeler le highlight */
+    }
+
+.event-name {
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+/* Points */
+.points-container {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.point-box {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, filter 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--point-bg);
+  border: 2px solid var(--event-border);
+  border-radius: 8px;
+  flex: 1 1 40px;
+  max-width: 40px;
+  min-width: 18px;
+  padding: 2px;
+  width: 40px;
+  box-shadow: inset 0 0 6px rgba(255, 215, 0, 0.25);
+}
+
+.point-box:hover {
+  transform: scale(1.05);
+}
+
+.point-box:active {
+  transform: scale(0.85);
+}
+
+.point-box img {
+  width: 28px;
+  height: 28px;
+  flex: 1 1 28px;
+  max-width: 28px;
+  min-width: 18px;
+  max-height: 28px;
+  min-height: 18px;
+  object-fit: contain;
+}
+
+.point-box span {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--line-color);
+}
+
+/* États des points */
+.point-box.state-upcoming {
+  border: 2px solid #e0e0e0;
+  box-shadow: inset 0 0 6px rgba(212,175,55,0.25);
+}
+
+.point-box.state-upcoming img {
+  filter: grayscale(100%);
+}
+
+.point-box.state-upcoming span {
+  color: #e0e0e0;
+}
+
+.point-box.state-ongoing {
+  border: 2px solid orange;
+  box-shadow: inset 0 0 6px rgba(255,165,0,0.25);
+}
+
+.point-box.state-validated {
+  border: 2px solid #4caf50;
+  box-shadow: inset 0 0 6px rgba(76,175,80,0.25);
+}
+
+.point-box.state-validated span {
+  color: #4caf50;
+}
+
+.point-box.state-passed {
+  border: 2px solid red;
+  box-shadow: inset 0 0 6px rgba(100,100,100,0.25);
+}
+
+.point-box.state-passed span {
+  color: red;
+}
+
+.point-box.state-passed img {
+  filter: grayscale(100%) sepia(100%) hue-rotate(-50deg) saturate(500%) brightness(80%);
+}
+
+/* Colonne du jour actuel */
+.date-column.today {
+  background: linear-gradient(
+    to bottom,
+    rgba(212,175,55,0) 0%,
+    rgba(212,175,55,0.15) 20%,
+    rgba(212,175,55,0.15) 80%,
+    rgba(212,175,55,0) 100%
+  );
+}
+
+/* Calculator */
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 300px;
+  position: relative;
+  z-index: 10000;
+  margin: 0 auto;
+}
+
+select {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  background-color: #2a2a2a;
+  color: white;
+  outline: none;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Tableau points */
+#points-table-container {
+  margin: 30px auto;
+  max-width: 700px;
+  overflow-x: auto;
+  position: relative;
+  z-index: 10000;
+}
+
+#points-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+}
+
+#points-table th,
+#points-table td {
+  padding: 8px;
+  background-color: var(--event-bg);
+}
+
+#points-table th {
+  background: linear-gradient(to bottom, #feeec1, #e09f40);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#points-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* Bouton toggle */
+.toggle-btn {
+  background: linear-gradient(145deg, #1a1a1a, #2b2b2b);
+  border: 2px solid #d4af37;
+  color: #fcf6ff;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 10px 0;
+}
+
+#toggle-btn {
+  display: none;
+}
+
+/* Résultat du calcul */
+#calculation-result {
+  width: 100%;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  position: relative;
+  z-index: 10000;
+  margin-top: 15px;
+  font-size: 15px;
+  font-style: italic;
+}
+
+/* Inputs */
+.points-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centre le contenu horizontalement */
+  justify-content: center;
+  position: relative;
+  z-index: 10000;
+  gap: 10px;
+  margin: 20px auto;     /* centre le bloc sur la page */
+  flex-wrap: wrap;
+  text-align: center;
+  width: fit-content;    /* 👈 le bloc s’adapte à son contenu */
+  max-width: 100%;       /* sécurité pour petits écrans */
+}
+
+.points-inputs label {
+  font-size: 0.9rem;
+  color: #fcf6ff;
+  font-weight: 600;
+}
+
+.points-inputs input {
+  background-color: #1a1a1a;
+  color: #fcf6ff;
+  border: none;
+  border-radius: 6px;
+  padding: 1rem;
+  padding-right: 2.5rem;
+  width: 100%;
+  max-width: 200px;
+  box-sizing: border-box;
+}
+
+/* Suppression des flèches sur les inputs numériques */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Texte sous inputs */
+.points-inputs span {
+  font-size: 0.9rem;
+  color: #fcf6ff;
+}
+
+#points-remaining {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* --- Bannière Adsterra fixe en bas de page --- */
+.adsense-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height:60px;
+  background: #0e0e0e;
+  border-top: 1px solid #d4af37;
+  box-shadow: 0 -2px 10px rgba(212, 175, 55, 0.25);
+  padding: 10px 0;
+  z-index: 9998;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.adsense-footer iframe {
+  border: none;
+}
+
+/* Masque la bannière sur mobile */
+@media (max-width: 768px) {
+  .adsense-footer {
+    display: none;
+  }
+}
+
+/* --- Événements terminés (finie avant aujourd'hui) --- */
+.event-block.event-ended {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(245, 37, 37, 0.1) 0px,
+    rgba(245, 37, 37, 0.1) 4px,
+    rgba(75, 75, 75, 0.1) 4px,
+    rgba(75, 75, 75, 0.1) 8px
+  );
+  filter: grayscale(0);
+  opacity: 1;
+  border: 2px solid rgba(255, 9, 9, 0.25);
+  box-shadow: none;
+}
+
+/* le titre grisé */
+.event-block.event-ended .event-name {
+  color: rgb(163, 1, 1);
+}
+
+/* les points restent lumineux */
+.event-block.event-ended .point-box img {
+  filter: none;
+  opacity: 1;
+}
+
+/* --- Event terminé mais complètement validé --- */
+.event-block.event-ended.validated {
+  background: linear-gradient(135deg, rgba(0, 201, 100, 0.1), rgba(0, 201, 100, 0.05));
+    background: repeating-linear-gradient(
+    135deg,
+    rgba(37, 245, 37, 0.1) 0px,
+    rgba(37, 245, 37, 0.1) 4px,
+    rgba(75, 75, 75, 0.1) 4px,
+    rgba(75, 75, 75, 0.1) 8px
+  );
+  border: 2px solid rgba(0, 201, 27, 0.4);
+  box-shadow: 0 0 10px rgba(0, 201, 27, 0.2);
+  filter: none;
+  opacity: 1;
+}
+
+.event-block.event-ended.validated .event-name {
+  color: rgba(5, 136, 1, 0.85);
+  text-shadow: 0 0 8px rgba(0, 255, 150, 0.4);
+}
+
+/* --- Event terminé partiellement complété --- */
+.event-block.event-ended.partial {
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.08) 0px,
+    rgba(255, 165, 0, 0.08) 4px,
+    rgba(75, 75, 75, 0.08) 4px,
+    rgba(75, 75, 75, 0.08) 8px
+  );
+  border: 2px solid rgba(255, 165, 0, 0.5);
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.25);
+  opacity: 1;
+}
+
+.event-block.event-ended.partial .event-name {
+  color: rgba(255, 180, 0, 0.8);
+  text-shadow: 0 0 6px rgba(255, 180, 0, 0.3);
+}
+
+/* Bouton reset individuel (événement) */
+.event-reset {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  color: #d4af37;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 5;
+}
+
+.event-reset:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+.global-reset {
+  position: absolute;
+  bottom: 6px;
+  right: 10px;
+  background: #1a1a1a;
+  border: 1px solid #d4af37;
+  color: #fcf6ff;
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.global-reset:hover {
+  background: #d4af37;
+  color: #1a1a1a;
+}
+
+.adsense-container {
+  background: #181818;
+  border: 1px solid #333;
+  padding: 12px 16px;
+  margin: 40px auto 20px;
+  border-radius: 10px;
+  max-width: 1200px; /* optionnel pour éviter que la pub soit full-width */
+  display: none;
+}
+
+.ad-label {
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  opacity: 0.9;
+  text-align: center;
+  width: 100%;
+  position: relative;
+}
+
+.ad-label::after {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: #d4af37;
+  margin: 6px auto 0;
+  opacity: 0.6;
+}
+
+.adsense-container ins {
+  min-height: 120px;   /* Ajuste 80–150 selon ton goût */
+}
